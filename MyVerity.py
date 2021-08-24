@@ -1,8 +1,6 @@
 import os
 import re
-from numpy import inner
 import pandas as pd
-from pandas.core.algorithms import mode
 
 # Check Dataset Size
 originTrainFilePath = './Dataset/NSMC/RawData/nsmc_train.txt'
