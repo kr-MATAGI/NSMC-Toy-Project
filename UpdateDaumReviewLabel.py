@@ -26,8 +26,6 @@ for idx in range(prevUpdateLen):
     #if newLabel != labelDataList[idx]: print(f'{docDataList[idx]} {scoreDataList[idx]} {labelDataList[idx]} to {newLabel}')
     updateDict['label'].append(newLabel)
 
-
-
 # Write CSV
 updateCSVPath = './Dataset/Daum_Movie/Merged/updated_daum_review.csv'
 updatedDataFame = pd.DataFrame(updateDict)
