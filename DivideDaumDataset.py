@@ -53,11 +53,11 @@ testFileName = 'daum_test.tsv'
 
 # Train
 writerDataFame = pd.DataFrame(trainDataset)
-#writerDataFame.to_csv(writeDirPath + '/' + trainFileName, sep='\t', index=False, encoding='utf-8')
+writerDataFame.to_csv(writeDirPath + '/' + trainFileName, sep='\t', index=False, encoding='utf-8')
 
 # Test
 writerDataFame = pd.DataFrame(testDataset)
-#writerDataFame.to_csv(writeDirPath + '/' + testFileName, sep='\t', index=False, encoding='utf-8')
+writerDataFame.to_csv(writeDirPath + '/' + testFileName, sep='\t', index=False, encoding='utf-8')
 
 print('\n-------Finish, Check Path - ', writeDirPath)
 
