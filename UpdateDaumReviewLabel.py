@@ -11,7 +11,7 @@ scoreDataList = daumReviewTable['score']
 labelDataList = daumReviewTable['label']
 
 # Update
-negCriteria = 5
+negCriteria = 4
 
 updateDict = {
     'document': [],
