@@ -9,12 +9,13 @@ PAUSE_TIME = 2
 CLICK_TIME = 0.5
 
 # Set Chrome Driver
-driverPath = 'C:/Users/hoon9/Desktop/파이썬/chromedriver.exe'
+driverPath = './chromedriver.exe'
 driver = webdriver.Chrome(driverPath)
 driver.implicitly_wait(3)
 
 # Loop
-while True:
+LoopCount = 10000
+for lc in range(1, LoopCount):
     startTime = time.time()
 
     time.sleep(PAUSE_TIME)
@@ -22,17 +23,9 @@ while True:
     # Configuration
     print('영화 이름은 띄어쓰기 없이')
     print('영화의 이름, id를 입력(예, 인질 127738): ')
-    movieName = ''
-    movieId = ''
-    while True:
-        inputData = list(map(str, str(input()).split(' ')))
-        if 2 == len(inputData): 
-            movieName = inputData[0]
-            movieId = inputData[1]
-            break
-        else: print('ERROR - Input')    
+    movieId = lc
 
-    movieUrl = 'https://movie.daum.net/moviedb/grade?movieId=%s&type=netizen&page=1' % movieId
+    movieUrl = 'https://movie.daum.net/moviedb/grade?movieId=%s&type=netizen&page=1' % str(lc)
     print('URL: ', movieUrl)
 
     # Access Web Page
@@ -96,12 +89,12 @@ while True:
             dataDict['score'].append(reviewPair[0])
             dataDict['label'].append(label)
 
-        fileName = '/Daum_%s_review.csv' % movieName
+        fileName = '/Daum_%s_review.csv' % str(movieId)
         print('Write Size: ', len(reviewList))
         print('saved path: ', SAVED_PATH+fileName)
 
         dataFame = pd.DataFrame(dataDict)
-        dataFame.to_csv(SAVED_PATH+fileName, sep=',', 
+        dataFame.to_csv(SAVED_PATH+fileName, sep='\t', 
                         index=True)
 
     else: print('ERROR - Parsing Process !')
