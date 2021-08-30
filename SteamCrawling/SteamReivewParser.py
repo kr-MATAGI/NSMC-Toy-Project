@@ -1,5 +1,4 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 
 import time
 import pandas as pd
@@ -8,7 +7,7 @@ import re
 # Def
 GAME_LIST_URL = 'http://store.steampowered.com/search/?filter=topsellers&l=korean'
 REVIEW_BASE_URL = 'http://steamcommunity.com/app/%s/reviews/?filterLanguage=koreana'
-SAVED_PATH = './Steam_Crawling/Review'
+SAVED_PATH = './SteamCrawling/Review'
 PAUSE_TIME = 0.6
 
 # Script
@@ -131,7 +130,7 @@ class SteamReviewParser:
             # Scrolling
             scrollHeight = self.__driver.execute_script(script['GET_SCROLL_HEIGHT'])
             print('Scroll Height -', scrollHeight)
-            for cnt in range(scrollCnt):
+            for scIdx in range(scrollCnt):
                 try:
                     self.__driver.execute_script(script['SCROLL_DOWN'])
                     print('Exec Scroll Down !')
@@ -174,8 +173,13 @@ class SteamReviewParser:
                 try:
                     reviewStr = cardContent.find_element_by_class_name('apphub_CardTextContent')
                     sentence = [ data for data in reviewStr.text.split('\n') if '<div' not in data]
+                                        
+                    # Extract Review Sentence
                     sentence = ' '.join(sentence)
-                    sentence = re.sub(r"[^a-zA-Z0-9]","", sentence)
+                    hangulEngReg = re.compile('[^ ㄱ-ㅣ가-힣]+')
+                    sentence = hangulEngReg.sub('', sentence)
+                    sentence = sentence.strip()
+
                 except Exception as e:
                     print('ERROR - Get UserReviewCardContent, ', e)
                 
@@ -199,7 +203,7 @@ class SteamReviewParser:
             else:
                 print(f'{gameName} Review List is Empty')
             
-            break
+            # break
             time.sleep(PAUSE_TIME)
         print('\nb----End Write Review, Processing Time:', time.time() - startTime)
 
