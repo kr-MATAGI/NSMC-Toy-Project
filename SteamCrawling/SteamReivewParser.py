@@ -206,4 +206,3 @@ class SteamReviewParser:
             # break
             time.sleep(PAUSE_TIME)
         print('\nb----End Write Review, Processing Time:', time.time() - startTime)
-

@@ -1,7 +1,6 @@
 import pandas as pd
 import urllib.request
 import os
-import time
 
 # def
 # NSMC Splite Size
@@ -90,7 +89,7 @@ class ReviewHandler:
             type: 0 - train, 1 - test
             colName: Target Column
     '''
-    def SpliteRawDataNSMC(self, type=0, colName='document', srcData):
+    def SpliteRawDataNSMC(self, srcData, type=0, colName='document'):
         rawDataPath = RawDataDirPath['NAVER']
         if NSMCType['TRAIN'] == type: rawDataPath += '/nsmc_train.txt'
         else: rawDataPath += '/nsmc_test.txt'
@@ -161,4 +160,27 @@ class ReviewHandler:
         except Exception as e:
             print('ERROR - Download NSMC Raw Dataset, ', e)
 
+ 
+    '''
+        Merge CSV Files
+    '''
+    def MergeCsvDataset(self, srcPath_1, srcPath_2, destPath):
+        # Check and Config
+        print('\n----Start Merge CSV Files')
+        print('path_1:', srcPath_1)
+        print('path_2:', srcPath_2)
+
+        # Read
+        srcTable_1 = pd.read_csv(srcPath_1, sep='\t', encoding='UTF-8')
+        srcTable_2 = pd.read_csv(srcPath_2, sep='\t', encoding='UTF-8')
+        print(f'Checking Len - src_1: {len(srcTable_1)}, src_2: {len(srcTable_2)}')
+
+        # Concat Table
+        mergedTable = pd.concat([srcTable_1, srcTable_2])
         
+        # Shuffle
+        mergedTable = mergedTable.sample(frac=1)
+
+        mergedTable.to_csv(destPath, sep='\t', index=False, encoding='UTF-8')
+        print(f'Checking Len - mergedTable: {len(mergedTable)}, srcTables: {len(srcTable_1)}, {srcTable_2}')
+
