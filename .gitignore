@@ -1,3 +1,7 @@
 # Chrome Driver
 *.exe
 *.zip
+
+# Dataset
+*.csv
+*.tsv

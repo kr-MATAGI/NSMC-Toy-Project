@@ -1,14 +1,18 @@
 from selenium import webdriver
+from sklearn.model_selection import train_test_split
 
 import time
+import os
 import pandas as pd
 import re
 
 # Def
 GAME_LIST_URL = 'http://store.steampowered.com/search/?filter=topsellers&l=korean'
-REVIEW_BASE_URL = 'http://steamcommunity.com/app/%s/reviews/?filterLanguage=koreana'
-SAVED_PATH = './SteamCrawling/Review'
-PAUSE_TIME = 0.6
+REVIEW_BASE_URL = 'http://steamcommunity.com/app/%s/reviews/?filterLanguage=koreana&p=1&browsefilter=toprated'
+RAWDATA_PATH = './Dataset/Steam/RawData'
+MERGED_PATH = './Dataset/Steam/Merged'
+SPLITED_PATH = './Dataset/Steam/Splited'
+PAUSE_TIME = 1
 
 # Script
 script = {
@@ -196,13 +200,63 @@ class SteamReviewParser:
                 # Write CSV
                 fileName = ('/Steam_%s_review.csv') % str(gameName)
                 print('Write Size: ', len(reviewPairList))
-                print('saved path: ', SAVED_PATH+fileName)
+                print('saved path: ', RAWDATA_PATH+fileName)
 
                 reviewFrame = pd.DataFrame(reviewDict)
-                reviewFrame.to_csv(SAVED_PATH+fileName, sep='\t', index=True)
+                reviewFrame.to_csv(RAWDATA_PATH+fileName, sep='\t', index=True)
             else:
                 print(f'{gameName} Review List is Empty')
             
             # break
             time.sleep(PAUSE_TIME)
         print('\nb----End Write Review, Processing Time:', time.time() - startTime)
+
+    '''
+        Merge All Raw Dataset
+    '''
+    def MergeAllRawDataset(self):
+            datasetFileList = os.listdir(RAWDATA_PATH)
+            print('All Dataset Count: ', len(datasetFileList))
+            print(datasetFileList)
+
+            # Merge
+            destFrame = None
+            for idx, fileName in enumerate(datasetFileList):
+                fullPath = RAWDATA_PATH + '/' + fileName
+                dataFrame = pd.read_csv(fullPath, sep='\t', encoding='UTF-8').dropna()
+                
+                if 0 == idx: destFrame = dataFrame
+                else: destFrame = pd.concat([destFrame, dataFrame])
+            print('Merged Len - ', len(destFrame))
+
+            # Write TSV
+            destFullPath = MERGED_PATH + '/' + 'Merged_Steam_review.tsv'
+            destFrame.to_csv(destFullPath, sep='\t', encoding='UTF-8', index=False, header=['id', 'document', 'label'])
+            print('--Finished, Merge Steam Game Review !')
+
+    '''
+        Splite Train / Test Dataset from merged dataset
+    '''
+    def SpliteTrainAndTest(self, testRatio=0.2, rndSeed=2021):
+        mergedFilePath = MERGED_PATH + '/' + 'Merged_Steam_review.tsv'
+        trainTargetPath = SPLITED_PATH + '/' + 'train_steam.tsv'
+        testTargetPath = SPLITED_PATH + '/' + 'test_steam.tsv'
+
+        mergedDataFrame = pd.read_csv(mergedFilePath, sep='\t', encoding='UTF-8')
+        mergedDoc = mergedDataFrame['document']
+        mergedLabel = mergedDataFrame['label']
+
+        x_train, x_test, y_train, y_test = train_test_split(mergedDoc, mergedLabel, test_size=testRatio, shuffle=True,
+                                                            stratify=mergedLabel, random_state=rndSeed)
+        
+        trainDataset = pd.DataFrame({'document': x_train, 'label': y_train})
+        testDataset = pd.DataFrame({'document': x_test, 'label': y_test})
+        
+        trainDataset.to_csv(trainTargetPath, sep='\t', encoding='UTF-8', index=True)
+        testDataset.to_csv(testTargetPath, sep='\t', encoding='UTF-8', index=True)
+
+        print(f'---End Split Train{len(trainDataset)} / Test Dataset{len(testDataset)}')
+
+        
+
+        

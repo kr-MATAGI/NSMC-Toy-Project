@@ -2,6 +2,8 @@ import pandas as pd
 import urllib.request
 import os
 
+from pandas.core.frame import DataFrame
+
 # def
 # NSMC Splite Size
 NSMCSplitSize = 10000
@@ -164,7 +166,7 @@ class ReviewHandler:
     '''
         Merge CSV Files
     '''
-    def MergeCsvDataset(self, srcPath_1, srcPath_2, destPath):
+    def MergeTsvDataset(self, srcPath_1, srcPath_2, destPath):
         # Check and Config
         print('\n----Start Merge CSV Files')
         print('path_1:', srcPath_1)
@@ -181,6 +183,73 @@ class ReviewHandler:
         # Shuffle
         mergedTable = mergedTable.sample(frac=1)
 
+        # Write
         mergedTable.to_csv(destPath, sep='\t', index=False, encoding='UTF-8')
-        print(f'Checking Len - mergedTable: {len(mergedTable)}, srcTables: {len(srcTable_1)}, {srcTable_2}')
+        print(f'Checking Len - mergedTable: {len(mergedTable)}, srcTables: {len(srcTable_1)}, {len(srcTable_2)}')
+
+    '''
+        Convert *.csv to *.tsv
+    '''
+    def ConvertCsv2Tsv(self, srcPath, destPath):
+        print('\n---Start Convert')
+        print('srcPath: ', srcPath)
+        print('DestPath: ', destPath)
+        try:
+            csvTable = pd.read_csv(srcPath, sep=',', encoding="UTF-8")
+            csvTable.to_csv(destPath, sep='\t', encoding='UTF-8', 
+                            index=False, header=['id', 'document', 'label'])
+        except Exception as e:
+            print('ERROR - Convert CSV to TSV', e)
+
+    '''
+        Convert .txt to .tsv
+    '''
+    def ConvertText2Tsv(self, srcPath, destPath):
+        print('\n---Start Convert')
+        print('srcPath: ', srcPath)
+        print('DestPath: ', destPath)
+        try:
+            txtTable = pd.read_table(srcPath, encoding='UTF-8')
+            txtTable.to_csv(destPath, sep='\t', encoding='UTF-8',
+                            index=False, header=['id', 'document', 'label'])
+        except Exception as e:
+            print('ERROR - Convert TXT to TSV', e)
+
+    '''
+        Re-process Coupang Review
+        @note
+            Delete score '0', only use '-1', '1'
+    '''
+    def ReprocessCoupangReview(self, srcPath, destPath):
+        print('\n----Strat Re-Preprocessing')
+        print(srcPath)
+        print(destPath)
+
+        srcTable = pd.read_csv(srcPath, sep='\t', encoding='UTF-8')
+        srcLen = len(srcTable)
+        print('Origin Table Length: ', srcLen)
+        srcTxt = srcTable['txt']
+        srcLabel = srcTable['label']
+        print(f'Lenght - srcTxt: {len(srcTxt)}, srcLabel: {len(srcLabel)}')
+        
+        dataDict = {
+            'id': [],
+            'document': [],
+            'label': []
+        }
+
+        # Loop
+        appendCnt = 0
+        for idx in range(srcLen):
+            if 1 == srcLabel[idx] or -1 == srcLabel[idx]:
+                dataDict['id'].append(idx)
+                dataDict['document'].append(srcTxt[idx])
+                dataDict['label'].append(1 if '1' == srcLabel[idx] else 0)
+                appendCnt += 1
+        
+        print('Data Dictionary Count:', appendCnt)
+
+        # Write
+        dataFrame = DataFrame(dataDict)
+        dataFrame.to_csv(destPath, sep='\t', encoding='UTF-8', index=False)
 
