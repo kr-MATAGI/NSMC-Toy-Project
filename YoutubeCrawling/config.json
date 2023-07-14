@@ -1,0 +1,16 @@
+{
+    "web_driver_path": "./chromedriver.exe",
+    "keyword": " 예산시장",
+    "max_search": 3,
+    "ref_comments": 5,
+    "scroll_down_cnt": 3,
+    "max_seq_len": 128,
+    "openai": {
+        "api_key": "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",
+        "model": "gpt-3.5-turbo"
+    },
+    "google": {
+        "id": "hoon941209@hotseller.co.kr",
+        "pwd": "akxkrl1a!"
+    }
+}
